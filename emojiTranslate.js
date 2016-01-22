@@ -15,7 +15,7 @@ let request = require.safe('request'),
         let emoji,
             translation = word,
 
-            // Punctuation blows. Get all the punctuation at the start and end of the word.
+        // Punctuation blows. Get all the punctuation at the start and end of the word.
             firstSymbol = '',
             lastSymbol = '';
 
@@ -78,32 +78,51 @@ let request = require.safe('request'),
         request.get('https://raw.githubusercontent.com/muan/emojilib/master/emojis.json', (err, response, body) => {
             body = JSON.parse(body);
             if (response.statusCode === 200 && body) {
-
-                if (exports.config.translations) {
+                if (!exports.config.translations) {
                     exports.config.translations = {};
                 }
-                else {
-                    for (let emoji in body) {
+                for (let emoji in body) {
+                    if (emoji !== 'keys') {
                         let words = body[emoji].keywords;
-                        for (let keyword in words) {
-                            if (!exports.config.translations[keyword].custom) {
-                                exports.config.translations[keyword] = emoji.char;
-                            }
+                        for (let index = 0; index < words.length; index++) {
+                            let keyword = words[index];
+                            checkForCustomEmoji(keyword, body[emoji.char])
                         }
+                        checkForCustomEmoji(emoji, body[emoji].char)
                     }
                 }
             }
         });
     },
 
+    checkForCustomEmoji = (keyword, emoji) => {
+        if (!exports.config.translations[keyword]) {
+            if (emoji && emoji != null) {
+                exports.config.translations[keyword] = emoji;
+            }
+        }
+        else {
+            if (!exports.config.translations[keyword].custom) {
+                if (emoji && emoji != null) {
+                    exports.config.translations[keyword] = emoji;
+                }
+            }
+        }
+    },
+
     addEmoji = (emoji, keywords) => {
-        for (let word in keywords) {
+        emoji.custom = true;
+        let word;
+        for (let index = 0; index < keywords.length; index++) {
+            word = keywords[index];
             exports.config.translations[word] = emoji;
         }
     },
 
     removeKeywords = (keywords) => {
-        for (let word in keywords) {
+        let word;
+        for (let index = 0; index < keywords.length; index++) {
+            word = keywords[index];
             exports.config.translations[word] = null;
         }
     };
@@ -126,7 +145,7 @@ exports.run = (api, event) => {
         updateEmojiList();
     }
     else if (text[0] === 'add'){
-        addEmoji(text[1], text)
+        addEmoji(text[1], text.slice(2))
     }
     else if (text[0] === 'remove') {
         removeKeywords(text)
@@ -142,7 +161,7 @@ exports.run = (api, event) => {
             let emojis = Object.keys(exports.config.translations),
                 index = Math.floor(Math.random() * emojis.length),
                 emoji = emojis[index];
-            message = "Nothing to translate, so here is a " + index + " " + emoji.char;
+            message = "Nothing to translate, so here is a " + emoji + " " + exports.config.translations[emoji];
         }
 
         api.sendMessage(message, event.thread_id);

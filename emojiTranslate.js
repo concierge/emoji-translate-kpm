@@ -70,16 +70,6 @@ getMeAnEmoji = (word) => {
     return '';
 };
 
-
-if (!exports.config.translations) {
-    request.get('https://raw.githubusercontent.com/notwaldorf/emoji-translate/master/bower_components/emojilib/emojis.json', (err, response, body) => {
-        body = JSON.parse(body);
-        if (response.statusCode === 200 && body) {
-            exports.config.translations = body;
-        }
-    });
-}
-
 exports.match = (text, commandPrefix) => {
     return text.startsWith(commandPrefix + 'emoji');
 };
@@ -110,4 +100,13 @@ exports.run = (api, event) => {
     api.sendMessage(message, event.thread_id);
 };
 
-
+exports.load = () => {
+    if (!exports.config.translations) {
+        request.get('https://raw.githubusercontent.com/notwaldorf/emoji-translate/master/bower_components/emojilib/emojis.json', (err, response, body) => {
+            body = JSON.parse(body);
+            if (response.statusCode === 200 && body) {
+                exports.config.translations = body;
+            }
+        });
+    }
+} ;

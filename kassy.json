@@ -1,0 +1,5 @@
+{
+  "name": "EmojiTranslate",
+  "version": 1.0,
+  "startup": "emojiTranslate.js"
+}

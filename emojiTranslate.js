@@ -6,69 +6,104 @@ const SYMBOLS = '!"#$%&\'()*+,-./:;<=>?@[]^_`{|}~';
 
 let request = require.safe('request'),
 
-/**
- * Returns a possibly translated english word to emoji.
- * @param {String} word The word to be translated
- * @returns {String} translated word
- */
-translateWord = (word) => {
-    let emoji,
-        translation = word,
+    /**
+     * Returns a possibly translated english word to emoji.
+     * @param {String} word The word to be translated
+     * @returns {String} translated word
+     */
+    translateWord = word => {
+        let emoji,
+            translation = word,
 
-        // Punctuation blows. Get all the punctuation at the start and end of the word.
-        firstSymbol = '',
-        lastSymbol = '';
+            // Punctuation blows. Get all the punctuation at the start and end of the word.
+            firstSymbol = '',
+            lastSymbol = '';
 
-    while (SYMBOLS.indexOf(word[0]) != -1) {
-        firstSymbol += word[0];
-        word = word.slice(1, word.length);
-    }
+        while (SYMBOLS.indexOf(word[0]) != -1) {
+            firstSymbol += word[0];
+            word = word.slice(1, word.length);
+        }
 
-    while (SYMBOLS.indexOf(word[word.length - 1]) != -1) {
-        lastSymbol += word[word.length - 1];
-        word = word.slice(0, word.length - 1);
-    }
+        while (SYMBOLS.indexOf(word[word.length - 1]) != -1) {
+            lastSymbol += word[word.length - 1];
+            word = word.slice(0, word.length - 1);
+        }
 
-    emoji = getMeAnEmoji(word);
-    if (emoji && emoji != '') {
-        translation = emoji;
-    }
+        emoji = getMeAnEmoji(word);
+        if (emoji && emoji != '') {
+            translation = emoji;
+        }
 
-    return translation;
-},
+        return translation;
+    },
 
-/**
- * Returns the emoji equivalent of an english word.
- * @param {String} word The word to be translated
- * @returns {String} The emoji character representing this word, or '' if one doesn't exist.
- */
-getMeAnEmoji = (word) => {
-    word = word.trim().toLowerCase();
+    /**
+     * Returns the emoji equivalent of an english word.
+     * @param {String} word The word to be translated
+     * @returns {String} The emoji character representing this word, or '' if one doesn't exist.
+     */
+    getMeAnEmoji = word => {
+        word = word.trim().toLowerCase();
 
-    if (!word || word === '' || word === 'it')
+        if (!word || word === '' || word === 'it')
+            return '';
+
+        // Maybe this is a plural word but the word is the singular?
+        // Don't do it for two letter words since "as" would become "a" etc.
+        let maybeSingular = '';
+        if (word.length > 2 && word[word.length - 1] == 's')
+            maybeSingular = word.slice(0, word.length - 1);
+
+        // Maybe this is a singular word but the word is the plural?
+        // Don't do this for single letter since that will pluralize crazy things.
+        let maybePlural = (word.length == 1) ? '' : word + 's';
+
+        // Go through all the things and find the first one that matches.
+        for (let emoji in exports.config.translations) {
+            let words = exports.config.translations[emoji].keywords;
+            if (emoji == word || emoji == maybeSingular || emoji == maybePlural ||
+                (words && words.indexOf(word) >= 0) ||
+                (words && words.indexOf(maybeSingular) >= 0) ||
+                (words && words.indexOf(maybePlural) >= 0))
+                return exports.config.translations[emoji].char;
+        }
         return '';
+    },
 
-    // Maybe this is a plural word but the word is the singular?
-    // Don't do it for two letter words since "as" would become "a" etc.
-    let maybeSingular = '';
-    if (word.length > 2 && word[word.length - 1] == 's')
-        maybeSingular = word.slice(0, word.length - 1);
+    updateEmojiList = () => {
+        request.get('https://raw.githubusercontent.com/muan/emojilib/master/emojis.json', (err, response, body) => {
+            body = JSON.parse(body);
+            if (response.statusCode === 200 && body) {
 
-    // Maybe this is a singular word but the word is the plural?
-    // Don't do this for single letter since that will pluralize crazy things.
-    let maybePlural = (word.length == 1) ? '' : word + 's';
+                if (exports.config.translations) {
+                    exports.config.translations = {};
+                }
+                else {
+                    for (let emoji in body) {
+                        let words = body[emoji].keywords;
+                        for (let keyword in words) {
+                            if (!exports.config.translations[keyword].custom) {
+                                exports.config.translations[keyword] = emoji.char;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    },
 
-    // Go through all the things and find the first one that matches.
-    for (let emoji in exports.config.translations) {
-        let words = exports.config.translations[emoji].keywords;
-        if (emoji == word || emoji == maybeSingular || emoji == maybePlural ||
-            (words && words.indexOf(word) >= 0) ||
-            (words && words.indexOf(maybeSingular) >= 0) ||
-            (words && words.indexOf(maybePlural) >= 0))
-            return exports.config.translations[emoji].char;
-    }
-    return '';
-};
+    addEmoji = (emoji, keywords) => {
+        for (let word in keywords) {
+            exports.config.translations[word] = emoji;
+        }
+    },
+
+    removeKeywords = (keywords) => {
+        for (let word in keywords) {
+            exports.config.translations[word] = null;
+        }
+    };
+
 
 exports.match = (text, commandPrefix) => {
     return text.startsWith(commandPrefix + 'emoji');
@@ -83,30 +118,35 @@ exports.run = (api, event) => {
         message = '';
 
     text = text.split(" ");
-
-    for (let i = 0; i < text.length; i++) {
-        message += translateWord(text[i]) + " ";
+    if (text[0] === 'update') {
+        updateEmojiList();
     }
-
-    message = message.substring(0, message.length - 1);
-
-    if (message == '') {
-        let emojis = Objects.keys(exports.config.translations),
-            index = Math.floor(Math.random() * emojis.length),
-            emoji = emojis[index];
-        message = "Nothing to translate, so here is a " + index + " " + emoji.char;
+    else if (text[0] === 'add'){
+        addEmoji(text[1], text)
     }
+    else if (text[0] === 'remove') {
+        removeKeywords(text)
+    }
+    else {
+        for (let i = 0; i < text.length; i++) {
+            message += translateWord(text[i]) + " ";
+        }
 
-    api.sendMessage(message, event.thread_id);
+        message = message.substring(0, message.length - 1);
+
+        if (message == '') {
+            let emojis = Object.keys(exports.config.translations),
+                index = Math.floor(Math.random() * emojis.length),
+                emoji = emojis[index];
+            message = "Nothing to translate, so here is a " + index + " " + emoji.char;
+        }
+
+        api.sendMessage(message, event.thread_id);
+    }
 };
 
 exports.load = () => {
     if (!exports.config.translations) {
-        request.get('https://raw.githubusercontent.com/notwaldorf/emoji-translate/master/bower_components/emojilib/emojis.json', (err, response, body) => {
-            body = JSON.parse(body);
-            if (response.statusCode === 200 && body) {
-                exports.config.translations = body;
-            }
-        });
+        updateEmojiList();
     }
 } ;

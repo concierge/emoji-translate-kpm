@@ -58,14 +58,18 @@ let request = require.safe('request'),
         // Don't do this for single letter since that will pluralize crazy things.
         let maybePlural = (word.length == 1) ? '' : word + 's';
 
-        // Go through all the things and find the first one that matches.
-        for (let emoji in exports.config.translations) {
-            let words = exports.config.translations[emoji].keywords;
-            if (emoji == word || emoji == maybeSingular || emoji == maybePlural ||
-                (words && words.indexOf(word) >= 0) ||
-                (words && words.indexOf(maybeSingular) >= 0) ||
-                (words && words.indexOf(maybePlural) >= 0))
-                return exports.config.translations[emoji].char;
+
+        let emoji = exports.config.translations[word];
+        if (emoji) {
+            return emoji;
+        }
+        emoji = exports.config.translations[maybeSingular];
+        if (emoji) {
+            return emoji;
+        }
+        emoji = exports.config.translations[maybePlural];
+        if (emoji) {
+            return emoji;
         }
         return '';
     },

@@ -133,7 +133,10 @@ exports.match = (text, commandPrefix) => {
 };
 
 exports.help = () => {
-    return [[this.commandPrefix + 'emoji "<text>"','translates text into emoji.', 'inspiration and translations taken from https://github.com/notwaldorf/emoji-translate'] ];
+    return [[this.commandPrefix + 'emoji "<text>"','translates text into emoji.', 'inspiration and translations taken from https://github.com/notwaldorf/emoji-translate'],
+            [this.commandPrefix + 'emoji add "<emoji>" "<keyword [keyword]...>"', 'adds and emoji with keywords', 'Warning overrides any existing emojis assigned to keywords'],
+            [this.commandPrefix + 'emoji remove "<keyword [keyword]...>"', 'removes associated keywords'],
+            [this.commadPrefix + 'emoji update', 'updates list of emoji', 'translations taken from https://github.com/muan/emojilib']];
 };
 
 exports.run = (api, event) => {
@@ -148,7 +151,7 @@ exports.run = (api, event) => {
         addEmoji(text[1], text.slice(2))
     }
     else if (text[0] === 'remove') {
-        removeKeywords(text)
+        removeKeywords(text, text.slice[2])
     }
     else {
         for (let i = 0; i < text.length; i++) {

@@ -82,7 +82,7 @@ exports.run = (api, event) => {
     let text= event.body.substring(api.commandPrefix.length + 6),
         message = '';
 
-    text = text.split(/\s*;\s*/);
+    text = text.split(" ");
 
     for (let i = 0; i < text.length; i++) {
         message += translateWord(text[i]) + " ";

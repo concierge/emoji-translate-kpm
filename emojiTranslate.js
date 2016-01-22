@@ -59,23 +59,23 @@ getMeAnEmoji = (word) => {
     let maybePlural = (word.length == 1) ? '' : word + 's';
 
     // Go through all the things and find the first one that matches.
-    for (let emoji in this.config.translations) {
-        let words = this.config.translations[emoji].keywords;
+    for (let emoji in exports.config.translations) {
+        let words = exports.config.translations[emoji].keywords;
         if (emoji == word || emoji == maybeSingular || emoji == maybePlural ||
             (words && words.indexOf(word) >= 0) ||
             (words && words.indexOf(maybeSingular) >= 0) ||
             (words && words.indexOf(maybePlural) >= 0))
-            return this.config.translations[emoji].char;
+            return exports.config.translations[emoji].char;
     }
     return '';
 };
 
 
-if (!this.config.translations) {
+if (!exports.config.translations) {
     request.get('https://raw.githubusercontent.com/notwaldorf/emoji-translate/master/bower_components/emojilib/emojis.json', (err, response, body) => {
         body = JSON.parse(body);
         if (response.statusCode === 200 && body) {
-            this.config.translations = body;
+            exports.config.translations = body;
         }
     });
 }
@@ -101,7 +101,7 @@ exports.run = (api, event) => {
     message = message.substring(0, message.length - 1);
 
     if (message == '') {
-        let emojis = Objects.keys(this.config.translations),
+        let emojis = Objects.keys(exports.config.translations),
             index = Math.floor(Math.random() * emojis.length),
             emoji = emojis[index];
         message = "Nothing to translate, so here is a " + index + " " + emoji.char;

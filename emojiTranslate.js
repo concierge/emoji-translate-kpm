@@ -132,11 +132,11 @@ exports.match = (text, commandPrefix) => {
     return text.startsWith(commandPrefix + 'emoji');
 };
 
-exports.help = () => {
-    return [[this.commandPrefix + 'emoji "<text>"','translates text into emoji.', 'inspiration and translations taken from https://github.com/notwaldorf/emoji-translate'],
-            [this.commandPrefix + 'emoji add "<emoji>" "<keyword [keyword]...>"', 'adds and emoji with keywords', 'Warning overrides any existing emojis assigned to keywords'],
-            [this.commandPrefix + 'emoji remove "<keyword [keyword]...>"', 'removes associated keywords'],
-            [this.commandPrefix + 'emoji update', 'updates list of emoji', 'translations taken from https://github.com/muan/emojilib']];
+exports.help = (commandPrefix) => {
+    return [[commandPrefix + 'emoji "<text>"','translates text into emoji.', 'inspiration and translations taken from https://github.com/notwaldorf/emoji-translate'],
+            [commandPrefix + 'emoji add "<emoji>" "<keyword [keyword]...>"', 'adds and emoji with keywords', 'Warning overrides any existing emojis assigned to keywords'],
+            [commandPrefix + 'emoji remove "<keyword [keyword]...>"', 'removes associated keywords'],
+            [commandPrefix + 'emoji update', 'updates list of emoji', 'translations taken from https://github.com/muan/emojilib']];
 };
 
 exports.run = (api, event) => {

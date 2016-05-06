@@ -1,5 +1,10 @@
 {
   "name": "EmojiTranslate",
   "version": 1.1,
-  "startup": "emojiTranslate.js"
+  "startup": "emojiTranslate.js",
+  "command": "emoji",
+  "help":[["{{commandPrefix}}emoji \"<text>\"","translates text into emoji.", "inspiration and translations taken from https://github.com/notwaldorf/emoji-translate"],
+            ["{{commandPrefix}}emoji add \"<emoji>\" \"<keyword [keyword]...>\"", "adds and emoji with keywords", "Warning overrides any existing emojis assigned to keywords"],
+            ["{{commandPrefix}}emoji remove \"<keyword [keyword]...>\"", "removes associated keywords"],
+            ["{{commandPrefix}}emoji update", "updates list of emoji", "translations taken from https://github.com/muan/emojilib"]]
 }

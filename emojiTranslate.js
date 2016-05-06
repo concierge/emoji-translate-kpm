@@ -86,7 +86,7 @@ let request = require.safe('request'),
                         let words = body[emoji].keywords;
                         for (let index = 0; index < words.length; index++) {
                             let keyword = words[index];
-                            checkForCustomEmoji(keyword, body[emoji.char])
+                            checkForCustomEmoji(keyword, body[emoji].char)
                         }
                         checkForCustomEmoji(emoji, body[emoji].char)
                     }

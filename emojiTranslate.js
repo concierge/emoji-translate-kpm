@@ -127,18 +127,6 @@ let request = require.safe('request'),
         }
     };
 
-
-exports.match = (text, commandPrefix) => {
-    return text.startsWith(commandPrefix + 'emoji');
-};
-
-exports.help = (commandPrefix) => {
-    return [[commandPrefix + 'emoji "<text>"','translates text into emoji.', 'inspiration and translations taken from https://github.com/notwaldorf/emoji-translate'],
-            [commandPrefix + 'emoji add "<emoji>" "<keyword [keyword]...>"', 'adds and emoji with keywords', 'Warning overrides any existing emojis assigned to keywords'],
-            [commandPrefix + 'emoji remove "<keyword [keyword]...>"', 'removes associated keywords'],
-            [commandPrefix + 'emoji update', 'updates list of emoji', 'translations taken from https://github.com/muan/emojilib']];
-};
-
 exports.run = (api, event) => {
     let text= event.body.substring(api.commandPrefix.length + 6),
         message = '';

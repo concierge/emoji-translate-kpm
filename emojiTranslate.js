@@ -38,7 +38,7 @@ let request = require.safe('request'),
 
         emoji = getMeAnEmoji(word);
         if (emoji && emoji !== '') {
-            translation = emoji;
+            translation = firstSymbol + emoji + lastSymbol;
         }
 
         return translation;

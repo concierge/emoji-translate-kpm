@@ -1,6 +1,6 @@
 {
-  "name": "EmojiTranslate",
-  "version": 1.4,
+  "name": "emoji-translate",
+  "version": 1.5,
   "startup": "emojiTranslate.js",
   "command": "emoji",
   "help":[["{{commandPrefix}}emoji \"<text>\"","translates text into emoji.", "inspiration taken from https://github.com/notwaldorf/emoji-translate"],

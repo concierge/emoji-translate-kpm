@@ -10,7 +10,7 @@ function *entries(obj) {
     }
 };
 
-let request = require.safe('request'),
+let emojilib = require('emojilib');
 
     /**
      * Returns a possibly translated english word to emoji.
@@ -83,22 +83,17 @@ let request = require.safe('request'),
     },
 
     updateEmojiList = () => {
-        request.get('https://raw.githubusercontent.com/muan/emojilib/master/emojis.json', (err, response, body) => {
-            body = JSON.parse(body);
-            if (response.statusCode === 200 && body) {
-                if (!exports.config.translations) {
-                    exports.config.translations = {};
-                }
-                for (let [emojiWord, properties] of entries(body)) {
-                    for (let keyword of properties.keywords) {
-                        checkForCustomEmoji(keyword, properties.char);
-                    }
-                    if (emojiWord.length > 2 && !emojiWord.includes('_')) {
-                        checkForCustomEmoji(emojiWord, properties.char);
-                    }
-                }
+        if (!exports.config.translations) {
+            exports.config.translations = {};
+        }
+        for (let [emojiWord, properties] of entries(emojilib.lib)) {
+            for (let keyword of properties.keywords) {
+                checkForCustomEmoji(keyword, properties.char);
             }
-        });
+            if (emojiWord.length > 2 && !emojiWord.includes('_')) {
+                checkForCustomEmoji(emojiWord, properties.char);
+            }
+        }
     },
 
     checkForCustomEmoji = (keyword, emoji) => {

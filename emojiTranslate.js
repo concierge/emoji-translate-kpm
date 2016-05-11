@@ -119,7 +119,7 @@ let request = require.safe('request'),
     addEmoji = (emoji, keywords) => {
         emoji.custom = true;
         for (let word of keywords) {
-            exports.config.translations[word] = emoji;
+            exports.config.translations[word] = [emoji];
         }
     },
 
@@ -141,10 +141,10 @@ exports.run = (api, event) => {
         updateEmojiList();
     }
     else if (event.arguments[1] === 'add' && event.arguments.length >= 4) {
-        addEmoji(event.arguments[1], event.arguments.slice(2));
+        addEmoji(event.arguments[2], event.arguments.slice(3));
     }
-    else if (event.arguments[1] === 'remove' && event.arguments.length >= 4) {
-        removeKeywords(event.arguments.slice(1));
+    else if (event.arguments[1] === 'remove' && event.arguments.length >= 3) {
+        removeKeywords(event.arguments.slice(2));
     }
     else {
         for (let word of event.arguments.slice(1)) {

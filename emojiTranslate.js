@@ -10,7 +10,7 @@ function *entries(obj) {
     }
 };
 
-let emojilib = require('emojilib');
+let emojilib = require('emojilib'),
 
     /**
      * Returns a possibly translated english word to emoji.

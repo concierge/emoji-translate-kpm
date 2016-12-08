@@ -112,9 +112,10 @@ let emojilib = require('emojilib'),
     },
 
     addEmoji = (emoji, keywords) => {
-        emoji.custom = true;
+        let emojiList = [emoji];
+	    emojiList.custom = true;
         for (let word of keywords) {
-            exports.config.translations[word] = [emoji];
+            exports.config.translations[word] = emojiList;
         }
     },
 
